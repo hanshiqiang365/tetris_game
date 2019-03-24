@@ -3,10 +3,10 @@ import sys
 import random
 import copy,math
 import pygame
-from PyQt5.QtCore import Qt, QBasicTimer, pyqtSignal, QUrl
+import time
+from PyQt5.QtCore import Qt, QBasicTimer, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow, QDesktopWidget, QApplication, QHBoxLayout, QLabel, QFrame
 from PyQt5.QtGui import QColor, QPainter, QPalette, QIcon
-from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 
 class tetrisShape():
 	def __init__(self, shape=0):
@@ -199,8 +199,9 @@ class ExternalBoard(QFrame):
 		painter.drawLine(0, self.height(), self.width(), self.height())
 
 	def updateData(self):
-		self.score_signal.emit(f'Score：{self.score * 10}')
-		self.update()
+                game_runtime = round(time.time() - game_starttime)
+                self.score_signal.emit(f'Score：{self.score * 10}         |     Time Spend: {round(game_runtime // 3600)}:{round((game_runtime % 3600) // 60)}:{round((game_runtime % 3600) % 60)}')
+                self.update()
 
 class SidePanel(QFrame):
 	def __init__(self, parent, grid_size, inner_board):
@@ -227,7 +228,7 @@ def drawCell(painter, x, y, shape, grid_size):
 	colors = [0x000000, 0xCC6666, 0x66CC66, 0x6666CC, 0xCCCC66, 0xCC66CC, 0x66CCCC, 0xDAAA00]
 	if shape == 0:
 		return
-	color = QColor(colors[shape])
+	color = QColor(20,255,20) #QColor(colors[shape])
 	painter.fillRect(x+1, y+1, grid_size-2, grid_size-2, color)
 	painter.setPen(color.lighter())
 	painter.drawLine(x, y+grid_size-1, x, y)
@@ -361,6 +362,8 @@ class TetrisGame(QMainWindow):
                 self.initUI()
                 
         def initUI(self):
+                global game_starttime
+                
                 self.grid_size = 30
                 self.fps = 100
                 self.timer = QBasicTimer()
@@ -393,6 +396,8 @@ class TetrisGame(QMainWindow):
 
                 self.setWindowTitle('AI Tetris Game  - Developed by hanshiqiang365')
                 self.show()
+
+                game_starttime = time.time()
 
                 self.setFixedSize(self.external_board.width() + self.side_panel.width(),self.side_panel.height() + self.status_bar.height())
 
